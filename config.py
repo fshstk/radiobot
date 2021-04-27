@@ -13,3 +13,7 @@ FEED_URL = os.getenv("FEED_URL")
 
 # URL to the database used to store radio show data. Must be MongoDB-compatible:
 DATABASE_URL = os.getenv("MONGO_URL")
+
+# Discord config variables:
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+COMMAND_PREFIX = os.getenv("COMMAND_PREFIX")
