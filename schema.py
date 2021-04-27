@@ -15,5 +15,15 @@ class Episode(Document):
 
     @queryset_manager
     def missing_audio(doc_cls, queryset):
-        """Return all episodes that don't have an MP3 url set yet"""
-        return queryset.filter(mp3_url=None)
+        """
+        Return all episodes that don't have an MP3 url set yet.
+        """
+        return queryset.filter(mp3_url__exists=False)
+
+    @queryset_manager
+    def playable(doc_cls, queryset):
+        """
+        The opposite of `missing_audio`. Return all episodes that DO have an MP3
+        url set.
+        """
+        return queryset.filter(mp3_url__exists=True)
