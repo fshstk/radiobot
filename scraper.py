@@ -1,69 +1,71 @@
-# %%
-
-import dateutil.parser
-import json
 import requests
 from bs4 import BeautifulSoup
 
-
-def date_string_to_iso(string):
-    try:
-        return dateutil.parser.parse(string).isoformat()
-    except TypeError:
-        return ""
-    except dateutil.parser.ParserError:
-        return ""
+from schema import Episode
 
 
-def get_episode_from_item(item):
+def scrape_items():
     """
-    Each episode is stored inside an <item> element. Here, we extract the child
-    elements we need and store them in a more accessible format.
+    Get XML of all radio episodes from the RSS feed. Each episode is stored
+    inside an <item> element.
     """
-    # TODO: No error checking is being done, so a single malformed item can crash
-    # the entire script.
-    return {
-        "title": item.title.string,
-        "date": date_string_to_iso(item.broadcastDate.string),
-        "url": item.link.string,
-        "description": item.description.string,
-    }
+    url = "https://cba.fro.at/series/toningenieursforum/feed"
+    page = requests.get(url)  # NOTE: this takes a while...
+    soup = BeautifulSoup(page.content, "xml")
+    return soup.find_all("item")
 
 
-def get_mp3_from_episode(episode):
-    page = requests.get(episode["url"])  # NOTE: this takes a while...
+def get_episode(item):
+    """
+    Extract the child elements we need and store them as a MongoDB collection
+    entry.
+    """
+    return Episode(
+        title=textify(item.title.string),
+        description=textify(item.description.string),
+        date=item.broadcastDate.string,
+        page_url=item.link.string,
+    )
 
-    # We are using "lxml" here as opposed to "xml" above. This is not a typo,
-    # they really are two different parsers:
-    soup = BeautifulSoup(page.content, "lxml")
+
+def textify(string):
+    """
+    Some episode titles have HTML-encoded special characters (e.g. "&amp;"), and
+    some descriptions are wrapped in <p> elements. The easiest way to get rid of
+    both is to run the string through the HTML parser a second time.
+    """
+    return BeautifulSoup(string, "html.parser").get_text()
+
+
+def add_mp3_url_single(episode):
+    """
+    Scrape the stored page URL for the given episode and save the URL to its
+    audio file.
+    """
+    page = requests.get(episode.page_url)  # NOTE: this takes a while...
+    soup = BeautifulSoup(page.content, "html.parser")
     url = soup.audio.get("src")
-
-    # The mp3 URL usually has "?stream" appended to the end, and we want to get
-    # rid of it:
-    url = url.split("?")[0]
-    return url
+    # The mp3 URL usually has "?stream" appended to the end which we don't want:
+    episode.mp3_url = url.split("?")[0]
 
 
-# Maybe we should use a database instead?
-default_filename = "episodes.json"
+def add_mp3_url(episodes):
+    """
+    Run `add_mp3_url_single()` on multiple episodes. Be careful, this can take a very
+    long time to run.
+    """
+    episodes_to_process = [ep for ep in episodes if "mp3_url" not in ep]
+    if len(episodes_to_process) == 0:
+        print("No episodes to process")
+        return
+    for number, ep in enumerate(episodes_to_process):
+        print(f"Processing episode {number+1} of {len(episodes_to_process)}...")
+        add_mp3_url(ep)
+    print("Done")
 
 
-def load_episodes_from_file(filename=default_filename):
-    with open(filename, "r") as file:
-        return json.load(file)
-
-
-def write_episodes_to_file(episodes, filename=default_filename):
-    with open(filename, "w") as file:
-        json.dump(episodes, file)
-
-
-# %%
-
-url = "https://cba.fro.at/series/toningenieursforum/feed"
-page = requests.get(url)  # NOTE: this takes a while...
-soup = BeautifulSoup(page.content, "xml")
-items = soup.find_all("item")
-episodes = [get_episode_from_item(item) for item in items]
-
-# %%
+def scrape_episodes():
+    """
+    Putting it all together... returns a list of all episodes.
+    """
+    return [get_episode(item) for item in scrape_items()]
