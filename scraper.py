@@ -37,31 +37,15 @@ def textify(string):
     return BeautifulSoup(string, "html.parser").get_text()
 
 
-def add_mp3_url_single(episode):
+def scrape_mp3_url(episode):
     """
-    Scrape the stored page URL for the given episode and save the URL to its
-    audio file.
+    Scrape the stored page URL for the given episode and return it.
     """
     page = requests.get(episode.page_url)  # NOTE: this takes a while...
     soup = BeautifulSoup(page.content, "html.parser")
     url = soup.audio.get("src")
     # The mp3 URL usually has "?stream" appended to the end which we don't want:
-    episode.mp3_url = url.split("?")[0]
-
-
-def add_mp3_url(episodes):
-    """
-    Run `add_mp3_url_single()` on multiple episodes. Be careful, this can take a very
-    long time to run.
-    """
-    episodes_to_process = [ep for ep in episodes if "mp3_url" not in ep]
-    if len(episodes_to_process) == 0:
-        print("No episodes to process")
-        return
-    for number, ep in enumerate(episodes_to_process):
-        print(f"Processing episode {number+1} of {len(episodes_to_process)}...")
-        add_mp3_url(ep)
-    print("Done")
+    return url.split("?")[0]
 
 
 def scrape_episodes():
