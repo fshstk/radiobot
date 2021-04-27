@@ -4,13 +4,6 @@ import dateutil.parser
 import requests
 from bs4 import BeautifulSoup
 
-url = "https://cba.fro.at/series/toningenieursforum/feed"
-page = requests.get(url)  # NOTE: this takes a while...
-soup = BeautifulSoup(page.content, "xml")
-items = soup.find_all("item")
-
-# %%
-
 
 def date_string_to_iso(string):
     try:
@@ -52,6 +45,10 @@ def get_mp3_from_episode(episode):
 
 # %%
 
+url = "https://cba.fro.at/series/toningenieursforum/feed"
+page = requests.get(url)  # NOTE: this takes a while...
+soup = BeautifulSoup(page.content, "xml")
+items = soup.find_all("item")
 episodes = [get_episode_from_item(item) for item in items]
 
 # %%
