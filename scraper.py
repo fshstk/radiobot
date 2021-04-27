@@ -1,6 +1,7 @@
 # %%
 
 import dateutil.parser
+import json
 import requests
 from bs4 import BeautifulSoup
 
@@ -41,6 +42,20 @@ def get_mp3_from_episode(episode):
     # rid of it:
     url = url.split("?")[0]
     return url
+
+
+# Maybe we should use a database instead?
+default_filename = "episodes.json"
+
+
+def load_episodes_from_file(filename=default_filename):
+    with open(filename, "r") as file:
+        return json.load(file)
+
+
+def write_episodes_to_file(episodes, filename=default_filename):
+    with open(filename, "w") as file:
+        json.dump(episodes, file)
 
 
 # %%
