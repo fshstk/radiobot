@@ -12,7 +12,7 @@ class Episode(Document):
 
     page_url = URLField(unique=True, required=True)
     date = DateField()
-    title = StringField(required=True)
+    title = StringField(required=True, default="Untitled")
     description = StringField()
     mp3_url = URLField()
 
