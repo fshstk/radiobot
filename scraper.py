@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
+from config import FEED_URL
 from schema import Episode
 
 
@@ -9,8 +10,7 @@ def scrape_items():
     Get XML of all radio episodes from the RSS feed. Each episode is stored
     inside an <item> element.
     """
-    url = "https://cba.fro.at/series/toningenieursforum/feed"
-    page = requests.get(url)  # NOTE: this takes a while...
+    page = requests.get(FEED_URL)  # NOTE: this takes a while...
     soup = BeautifulSoup(page.content, "xml")
     return soup.find_all("item")
 

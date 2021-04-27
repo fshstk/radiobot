@@ -4,9 +4,9 @@ import mongoengine
 from mongoengine.errors import NotUniqueError
 
 from scraper import scrape_episodes, add_mp3_url
+from config import DATABASE_URL
 
-database_url = "mongodb://localhost:27017/radiobot"
-mongoengine.connect(host=database_url)
+mongoengine.connect(host=DATABASE_URL)
 
 episodes = scrape_episodes()
 
