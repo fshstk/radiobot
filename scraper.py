@@ -12,6 +12,15 @@ items = soup.find_all("item")
 # %%
 
 
+def date_string_to_iso(string):
+    try:
+        return dateutil.parser.parse(string).isoformat()
+    except TypeError:
+        return ""
+    except dateutil.parser.ParserError:
+        return ""
+
+
 def get_episode_from_item(item):
     """
     Each episode is stored inside an <item> element. Here, we extract the child
@@ -19,13 +28,9 @@ def get_episode_from_item(item):
     """
     # TODO: No error checking is being done, so a single malformed item can crash
     # the entire script.
-    date = item.broadcastDate.string
-    if date is not None:
-        date = dateutil.parser.parse(date)
-
     return {
         "title": item.title.string,
-        "date": date,
+        "date": date_string_to_iso(item.broadcastDate.string),
         "url": item.link.string,
         "description": item.description.string,
     }
