@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 from functools import partial
 from datetime import datetime
 from asyncio import sleep
