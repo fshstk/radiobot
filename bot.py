@@ -4,7 +4,7 @@ from functools import partial
 from datetime import datetime
 
 from config import BOT_TOKEN, COMMAND_PREFIX
-from database import add_missing_mp3_urls, add_untracked_episodes
+from database import add_missing_mp3_urls, add_untracked_episodes, drop_episodes
 
 client = discord.Client()
 bot = commands.Bot(command_prefix=COMMAND_PREFIX)
@@ -21,6 +21,13 @@ async def refresh_database(context):
     report_progress = partial(amend_embed, reply)
     await add_untracked_episodes(progress_callback=report_progress)
     await add_missing_mp3_urls(progress_callback=report_progress)
+
+
+@bot.command(name="nuke")
+async def reset_database(context):
+    reply = await context.send("Nuking database...")
+    report_progress = partial(amend_embed, reply)
+    await drop_episodes(progress_callback=report_progress)
 
 
 async def amend_embed(message, content_to_add):

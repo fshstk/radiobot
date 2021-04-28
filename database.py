@@ -52,3 +52,14 @@ async def add_missing_mp3_urls(progress_callback=None):
                 f"Processing episode {number+1} of {len(episodes_to_process)}..."
             )
         ep.update(mp3_url=scrape_mp3_url(ep))
+
+
+async def drop_episodes(progress_callback=None):
+    """
+    WARNING: this will ERASE all episodes from the database!
+    """
+    if progress_callback is not None:
+        await progress_callback("Dropping all episodes...")
+    Episode.drop_collection()
+    if progress_callback is not None:
+        await progress_callback("Done")
