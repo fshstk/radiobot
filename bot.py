@@ -38,14 +38,14 @@ async def amend_embed(message, content_to_add, max_lines=10):
     (`message` must have type `discord.Message`)
     """
     timestamp = datetime.now().strftime("[%H:%M:%S]")
-    new_content = f"`{timestamp} {content_to_add}`"
+    new_content = f"{timestamp} {content_to_add}"
     print(new_content)  # Log the message to console...
 
     old_content = message.embeds[0].description if message.embeds else ""
     # Truncate down to the last (max_lines-1) lines:
     old_content = "\n".join(old_content.splitlines()[-(max_lines - 1) :])
 
-    new_embed = discord.Embed(description="\n".join([old_content, new_content]))
+    new_embed = discord.Embed(description=f"{old_content}\n`{new_content}`")
     await message.edit(embed=new_embed)
 
 
