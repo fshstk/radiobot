@@ -9,13 +9,14 @@ python-dateutil==2.8.1
 python-dotenv==0.17.0
 
 # Locked transitive dependencies:
-aiohttp==3.7.4.post0
 async-timeout==3.0.1
 attrs==20.3.0
 certifi==2020.12.5
+cffi==1.14.5
 chardet==4.0.0
 idna==2.10
 multidict==5.1.0
+pycparser==2.20
 pymongo==3.11.3
 six==1.15.0
 soupsieve==2.2.1
