@@ -31,6 +31,9 @@ dashboard:
   can use the [MongoDB plug-in](https://github.com/dokku/dokku-mongo) if you are
   using Dokku and it will set this variable up for you automatically. I'm sure
   there's something equivalent for Heroku as well.)
+- `TZ` (optional) if your server is set to a different timezone than the one you
+  want the bot's timestamps to be in, set this to your preferred timezone, e.g.
+  `Europe/Vienna`
 
 ## License
 
