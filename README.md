@@ -28,9 +28,9 @@ dashboard:
 - `FEED_URL` URL to the RSS feed of the radio show you want to track (usually of
   the form `https://cba.fro.at/series/RADIOSHOW/feed`)
 - `MONGO_URL` URL to a MongoDB database including access credentials (Note: you
-  can use the MongoDB plug-in if you are using Dokku and it will set this
-  variable up for you automatically. I'm sure there's something equivalent for
-  Heroku as well.)
+  can use the [MongoDB plug-in](https://github.com/dokku/dokku-mongo) if you are
+  using Dokku and it will set this variable up for you automatically. I'm sure
+  there's something equivalent for Heroku as well.)
 
 ## License
 
