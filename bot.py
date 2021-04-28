@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands, tasks
 from functools import partial
+from datetime import datetime
 
 from config import BOT_TOKEN, COMMAND_PREFIX
 from database import add_missing_mp3_urls, add_untracked_episodes
@@ -17,17 +18,21 @@ async def refresh_database(context):
     but progress is reported periodically via the `progress_callback` function.
     """
     reply = await context.send("Refreshing database...")
-    report_progress = partial(amend_message, reply)
+    report_progress = partial(amend_embed, reply)
     await add_untracked_episodes(progress_callback=report_progress)
     await add_missing_mp3_urls(progress_callback=report_progress)
 
 
-async def amend_message(message, string):
+async def amend_embed(message, content_to_add):
     """
-    Amend the passed `message`, replacing its contents with `string`.
+    Amend the passed `message` by adding `content_to_add` as a new line to the
+    message embed's description. If no embed exists a new one will be added.
     (`message` must have type `discord.Message`)
     """
-    await message.edit(content=string)
+    old_content = message.embeds[0].description if message.embeds else ""
+    new_content = old_content + "\n" + content_to_add
+    new_embed = discord.Embed.from_dict({"description": new_content})
+    await message.edit(embed=new_embed)
 
 
 print("Running bot...")
