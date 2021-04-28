@@ -1,18 +1,19 @@
-import requests
+import aiohttp
 from bs4 import BeautifulSoup
 
 from config import FEED_URL
 from schema import Episode
 
 
-def scrape_items():
+async def scrape_items(session):
     """
     Get XML of all radio episodes from the RSS feed. Each episode is stored
-    inside an <item> element.
+    inside an <item> element. The function must be passed an
+    `aiohttp.ClientSession` object.
     """
-    page = requests.get(FEED_URL)  # NOTE: this takes a while...
-    soup = BeautifulSoup(page.content, "xml")
-    return soup.find_all("item")
+    async with session.get(FEED_URL) as page:
+        soup = BeautifulSoup(await page.text(), "xml")
+        return soup.find_all("item")
 
 
 def get_episode(item):
@@ -37,19 +38,21 @@ def textify(string):
     return BeautifulSoup(string, "html.parser").get_text()
 
 
-def scrape_mp3_url(episode):
+async def scrape_mp3_url(episode):
     """
     Scrape the stored page URL for the given episode and return it.
     """
-    page = requests.get(episode.page_url)  # NOTE: this takes a while...
-    soup = BeautifulSoup(page.content, "html.parser")
-    url = soup.audio.get("src")
-    # The mp3 URL usually has "?stream" appended to the end which we don't want:
-    return url.split("?")[0]
+    async with aiohttp.ClientSession() as session:
+        async with session.get(episode.page_url) as page:
+            soup = BeautifulSoup(await page.text(), "html.parser")
+            url = soup.audio.get("src")
+            # The URL usually has "?stream" appended to the end which we don't want:
+            return url.split("?")[0]
 
 
-def scrape_episodes():
+async def scrape_episodes():
     """
     Putting it all together... returns a list of all episodes.
     """
-    return [get_episode(item) for item in scrape_items()]
+    async with aiohttp.ClientSession() as session:
+        return [get_episode(item) for item in await scrape_items(session)]

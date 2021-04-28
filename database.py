@@ -14,7 +14,7 @@ async def add_untracked_episodes(progress_callback=None):
     the database. Existing episodes will be rejected by the database backend as
     each episode must have a unique page url.
     """
-    episodes = scrape_episodes()
+    episodes = await scrape_episodes()
     if progress_callback is not None:
         await progress_callback(f"Scraper found {len(episodes)} episodes in feed.")
 
@@ -51,7 +51,7 @@ async def add_missing_mp3_urls(progress_callback=None):
             await progress_callback(
                 f"Processing episode {number+1} of {len(episodes_to_process)}..."
             )
-        ep.update(mp3_url=scrape_mp3_url(ep))
+        ep.update(mp3_url=await scrape_mp3_url(ep))
 
 
 async def drop_episodes(progress_callback=None):

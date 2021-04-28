@@ -1,11 +1,11 @@
 # Actual dependencies:
+aiohttp==3.7.4.post0
 beautifulsoup4==4.9.3
 discord.py==1.7.1
 lxml==4.6.3
 mongoengine==0.23.0
 python-dateutil==2.8.1
 python-dotenv==0.17.0
-requests==2.25.1
 
 # Locked transitive dependencies:
 aiohttp==3.7.4.post0
