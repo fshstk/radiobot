@@ -1,4 +1,3 @@
-import aiohttp
 from bs4 import BeautifulSoup
 
 from config import FEED_URL
@@ -38,21 +37,21 @@ def textify(string):
     return BeautifulSoup(string, "html.parser").get_text()
 
 
-async def scrape_mp3_url(episode):
+async def scrape_mp3_url(session, episode):
     """
-    Scrape the stored page URL for the given episode and return it.
+    Scrape the stored page URL for the given episode and return it. The function
+    must be passed an `aiohttp.ClientSession` object.
     """
-    async with aiohttp.ClientSession() as session:
-        async with session.get(episode.page_url) as page:
-            soup = BeautifulSoup(await page.text(), "html.parser")
-            url = soup.audio.get("src")
-            # The URL usually has "?stream" appended to the end which we don't want:
-            return url.split("?")[0]
+    async with session.get(episode.page_url) as page:
+        soup = BeautifulSoup(await page.text(), "html.parser")
+    url = soup.audio.get("src")
+    # The URL usually has "?stream" appended to the end which we don't want:
+    return url.split("?")[0]
 
 
-async def scrape_episodes():
+async def scrape_episodes(session):
     """
-    Putting it all together... returns a list of all episodes.
+    Putting it all together... returns a list of all episodes. The function must
+    be passed an `aiohttp.ClientSession` object.
     """
-    async with aiohttp.ClientSession() as session:
-        return [get_episode(item) for item in await scrape_items(session)]
+    return [get_episode(item) for item in await scrape_items(session)]

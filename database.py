@@ -1,3 +1,4 @@
+import aiohttp
 import mongoengine
 from mongoengine.errors import NotUniqueError
 
@@ -14,7 +15,8 @@ async def add_untracked_episodes(progress_callback=None):
     the database. Existing episodes will be rejected by the database backend as
     each episode must have a unique page url.
     """
-    episodes = await scrape_episodes()
+    async with aiohttp.ClientSession() as session:
+        episodes = await scrape_episodes(session)
     if progress_callback is not None:
         await progress_callback(f"Scraper found {len(episodes)} episodes in feed.")
 
@@ -46,12 +48,13 @@ async def add_missing_mp3_urls(progress_callback=None):
         if progress_callback is not None:
             await progress_callback("No episodes to process")
         return
-    for number, ep in enumerate(episodes_to_process):
-        if progress_callback is not None:
-            await progress_callback(
-                f"Processing episode {number+1} of {len(episodes_to_process)}..."
-            )
-        ep.update(mp3_url=await scrape_mp3_url(ep))
+    async with aiohttp.ClientSession() as session:
+        for number, ep in enumerate(episodes_to_process):
+            if progress_callback is not None:
+                await progress_callback(
+                    f"Processing episode {number+1} of {len(episodes_to_process)}..."
+                )
+            ep.update(mp3_url=await scrape_mp3_url(session, ep))
 
 
 async def drop_episodes(progress_callback=None):
