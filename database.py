@@ -44,15 +44,13 @@ async def add_missing_mp3_urls(session, progress_callback=None):
     The function must be passed an `aiohttp.ClientSession` object.
     """
     episodes_to_process = Episode.missing_audio
-
-    if len(episodes_to_process) == 0:
-        if progress_callback is not None:
-            await progress_callback("No episodes to process")
-        return
+    num_episodes = len(episodes_to_process)
+    if progress_callback is not None:
+        await progress_callback(f"{num_episodes or 'No'} episodes to process")
     for number, ep in enumerate(episodes_to_process):
         if progress_callback is not None:
             await progress_callback(
-                f"Processing episode {number+1} of {len(episodes_to_process)}..."
+                f"Processing episode {number+1} of {num_episodes}..."
             )
         ep.update(mp3_url=await scrape_mp3_url(session, ep))
 
