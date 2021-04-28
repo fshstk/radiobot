@@ -35,7 +35,11 @@ async def amend_embed(message, content_to_add, max_lines=10):
     """
     Amend the passed `message` by adding `content_to_add` as a new line to the
     message embed's description. If no embed exists a new one will be added.
-    (`message` must have type `discord.Message`)
+    (`message` must have type `discord.Message`) Only the last `max_lines` of
+    the message will be shown. If the message exceeds this number of lines it
+    will be truncated down, keeping the most recent messages. (Discord has a
+    limit of 2048 chars on embed descriptions, so you should keep the value of
+    `max_lines` low.)
     """
     timestamp = datetime.now().strftime("[%H:%M:%S]")
     new_content = f"{timestamp} {content_to_add}"
