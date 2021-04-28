@@ -21,6 +21,7 @@ async def refresh_database(context):
     report_progress = partial(amend_embed, reply)
     await add_untracked_episodes(progress_callback=report_progress)
     await add_missing_mp3_urls(progress_callback=report_progress)
+    await amend_embed(reply, "Done!")
 
 
 @bot.command(name="nuke")
