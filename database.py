@@ -9,14 +9,14 @@ from scraper import scrape_episodes, scrape_mp3_url
 mongoengine.connect(host=DATABASE_URL)
 
 
-async def add_untracked_episodes(progress_callback=None):
+async def add_untracked_episodes(session, progress_callback=None):
     """
     Scrapes the RSS feed for all available episodes, then tries to add them to
     the database. Existing episodes will be rejected by the database backend as
-    each episode must have a unique page url.
+    each episode must have a unique page url. The function must be passed an
+    `aiohttp.ClientSession` object.
     """
-    async with aiohttp.ClientSession() as session:
-        episodes = await scrape_episodes(session)
+    episodes = await scrape_episodes(session)
     if progress_callback is not None:
         await progress_callback(f"Scraper found {len(episodes)} episodes in feed.")
 
@@ -36,11 +36,12 @@ async def add_untracked_episodes(progress_callback=None):
         )
 
 
-async def add_missing_mp3_urls(progress_callback=None):
+async def add_missing_mp3_urls(session, progress_callback=None):
     """
     Checks which episodes do not have a url to the episode audio and tries to
     update them. This involves a separate page scrape for EACH episode we are
     trying to add and can potentially take a long time (more than a minute).
+    The function must be passed an `aiohttp.ClientSession` object.
     """
     episodes_to_process = Episode.missing_audio
 
@@ -48,13 +49,22 @@ async def add_missing_mp3_urls(progress_callback=None):
         if progress_callback is not None:
             await progress_callback("No episodes to process")
         return
+    for number, ep in enumerate(episodes_to_process):
+        if progress_callback is not None:
+            await progress_callback(
+                f"Processing episode {number+1} of {len(episodes_to_process)}..."
+            )
+        ep.update(mp3_url=await scrape_mp3_url(session, ep))
+
+
+async def refresh_database(progress_callback=None):
+    """
+    Wraps `add_untracked_episodes` and `add_missing_mp3_urls` in one operation,
+    opening up only a single aiohttp client session.
+    """
     async with aiohttp.ClientSession() as session:
-        for number, ep in enumerate(episodes_to_process):
-            if progress_callback is not None:
-                await progress_callback(
-                    f"Processing episode {number+1} of {len(episodes_to_process)}..."
-                )
-            ep.update(mp3_url=await scrape_mp3_url(session, ep))
+        await add_untracked_episodes(session, progress_callback)
+        await add_missing_mp3_urls(session, progress_callback)
 
 
 async def drop_episodes(progress_callback=None):

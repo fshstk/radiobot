@@ -4,14 +4,14 @@ from functools import partial
 from datetime import datetime
 
 from config import BOT_TOKEN, COMMAND_PREFIX
-from database import add_missing_mp3_urls, add_untracked_episodes, drop_episodes
+from database import refresh_database, drop_episodes
 
 client = discord.Client()
 bot = commands.Bot(command_prefix=COMMAND_PREFIX)
 
 
 @bot.command(name="refresh")
-async def refresh_database(context):
+async def refresh(context):
     """
     Update the episode database by scraping the CBA newsfeed. This may take a
     long time, especially when called for the first time on an empty database,
@@ -19,8 +19,7 @@ async def refresh_database(context):
     """
     reply = await context.send("Refreshing database...")
     report_progress = partial(amend_embed, reply)
-    await add_untracked_episodes(progress_callback=report_progress)
-    await add_missing_mp3_urls(progress_callback=report_progress)
+    await refresh_database(report_progress)
     await amend_embed(reply, "Done!")
 
 
