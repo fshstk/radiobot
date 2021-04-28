@@ -43,5 +43,13 @@ async def amend_embed(message, content_to_add):
     await message.edit(embed=new_embed)
 
 
+@bot.event
+async def on_command_error(_, error):
+    """
+    In case there's an error, just log it to console instead of crashing.
+    """
+    print(error)
+
+
 print("Running bot...")
 bot.run(BOT_TOKEN)
