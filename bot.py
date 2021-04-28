@@ -26,6 +26,10 @@ async def refresh(context):
 # TODO: this command should only be available to admins/bot owner
 @bot.command(name="nuke")
 async def reset_database(context):
+    """
+    This will ERASE THE ENTIRE DATABASE. Use with caution. (You can always
+    rebuild it with `refresh`.)
+    """
     reply = await context.send("Nuking database...")
     report_progress = partial(amend_embed, reply)
     await drop_episodes(progress_callback=report_progress)
