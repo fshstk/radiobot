@@ -2,8 +2,9 @@ import discord
 from discord.ext import commands, tasks
 from functools import partial
 from datetime import datetime
+from asyncio import sleep
 
-from config import BOT_TOKEN, COMMAND_PREFIX
+from config import BOT_TOKEN, COMMAND_PREFIX, VOICE_CHANNEL_ID
 from database import refresh_database, drop_episodes
 
 client = discord.Client()
@@ -33,6 +34,36 @@ async def reset_database(context):
     reply = await context.send("Nuking database...")
     report_progress = partial(amend_embed, reply)
     await drop_episodes(progress_callback=report_progress)
+
+
+@bot.command(name="play")
+async def play(context, url):
+    """
+    Play the given URL in the channel hardcoded in `config.VOICE_CHANNEL_ID`.
+    If the bot is already playing, it will stop and restart.
+    """
+    await stop(context)  # if the bot is already playing, stop first
+    voice_channel = bot.get_channel(VOICE_CHANNEL_ID)
+    print(f"{timestamp()} Playing {url} in {voice_channel.name}")
+
+    voice_client = await voice_channel.connect()
+    voice_client.play(discord.FFmpegPCMAudio(url))
+    while voice_client.is_playing():
+        await sleep(1)
+    print(f"{timestamp()} Finished playing.")
+    await voice_client.disconnect()
+
+
+@bot.command(name="stop")
+async def stop(context):
+    """
+    Disconnect the bot from all voice clients (should only be one anyway)...
+    """
+    if not bot.voice_clients:
+        return  # nothing to do here...
+    await context.send("Stopping...")
+    for vc in bot.voice_clients:
+        return await vc.disconnect()
 
 
 def timestamp():
