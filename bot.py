@@ -92,6 +92,11 @@ async def amend_embed(message, content_to_add, max_lines=10):
 
 
 @bot.event
+async def on_ready():
+    print(f"{timestamp()} Bot is ready and online!")
+
+
+@bot.event
 async def on_command_error(_, error):
     """
     In case there's an error, just log it to console instead of crashing.
@@ -99,5 +104,4 @@ async def on_command_error(_, error):
     print(error)
 
 
-print("Running bot...")
 bot.run(BOT_TOKEN)
