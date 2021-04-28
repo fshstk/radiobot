@@ -36,9 +36,10 @@ async def amend_embed(message, content_to_add):
     message embed's description. If no embed exists a new one will be added.
     (`message` must have type `discord.Message`)
     """
+    timestamp = datetime.now().strftime("[%H:%M:%S]")
     old_content = message.embeds[0].description if message.embeds else ""
-    new_content = old_content + "\n" + content_to_add
-    new_embed = discord.Embed.from_dict({"description": new_content})
+    new_content = f"{old_content}\n`{timestamp} {content_to_add}`"
+    new_embed = discord.Embed(description=new_content)
     await message.edit(embed=new_embed)
 
 
