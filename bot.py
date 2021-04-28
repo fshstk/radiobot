@@ -35,6 +35,10 @@ async def reset_database(context):
     await drop_episodes(progress_callback=report_progress)
 
 
+def timestamp():
+    return datetime.now().strftime("[%H:%M:%S]")
+
+
 async def amend_embed(message, content_to_add, max_lines=10):
     """
     Amend the passed `message` by adding `content_to_add` as a new line to the
@@ -45,8 +49,7 @@ async def amend_embed(message, content_to_add, max_lines=10):
     limit of 2048 chars on embed descriptions, so you should keep the value of
     `max_lines` low.)
     """
-    timestamp = datetime.now().strftime("[%H:%M:%S]")
-    new_content = f"{timestamp} {content_to_add}"
+    new_content = f"{timestamp()} {content_to_add}"
     print(new_content)  # Log the message to console...
 
     old_content = message.embeds[0].description if message.embeds else ""
