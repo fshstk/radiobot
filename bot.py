@@ -23,6 +23,7 @@ async def refresh(context):
     await amend_embed(reply, "Done!")
 
 
+# TODO: this command should only be available to admins/bot owner
 @bot.command(name="nuke")
 async def reset_database(context):
     reply = await context.send("Nuking database...")
